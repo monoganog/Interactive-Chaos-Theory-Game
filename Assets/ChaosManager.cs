@@ -32,6 +32,9 @@ public class ChaosManager : MonoBehaviour
     public TMP_InputField p3x;
     public TMP_InputField p3y;
 
+    public TMP_InputField startingPointx;
+    public TMP_InputField startingPointy;
+
     public List<GameObject> instantiatedObjects;
 
 
@@ -74,7 +77,7 @@ public bool paused = false;
 
         Vector3 newPos = (currentLocation.position + nextChosenTransform.position) / 2;
         GameObject instance = Instantiate(objectToInstantiate,newPos,Quaternion.identity);
-
+        instantiatedObjects.Add(instance);
         //instance.transform.localScale = Vector3.one * 0.1f;
         currentLocation.position = newPos;
 
@@ -95,6 +98,9 @@ public bool paused = false;
 
         p3x.text = points[2].transform.position.x.ToString();
         p3y.text = points[2].transform.position.y.ToString();
+
+        startingPointx.text = currentLocation.position.x.ToString();
+        startingPointy.text = currentLocation.position.y.ToString();
     }
 
 
@@ -103,6 +109,13 @@ public bool paused = false;
         points[0].transform.position = new Vector3(float.Parse(p1x.text),float.Parse(p1y.text),0);
         points[1].transform.position = new Vector3(float.Parse(p2x.text),float.Parse(p2y.text),0);
         points[2].transform.position = new Vector3(float.Parse(p3x.text),float.Parse(p3y.text),0);
+
+        currentLocation.position = new Vector3(float.Parse(startingPointx.text),float.Parse(startingPointy.text),0);
+    }
+
+    public void UpdateStartPos()
+    {
+
     }
 
     public void TogglePlayPause()
@@ -120,7 +133,5 @@ public bool paused = false;
             Destroy(obj);
         }
         instantiatedObjects.Clear();
-
-
     }
 }
