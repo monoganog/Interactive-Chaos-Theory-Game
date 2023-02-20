@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class ChaosManager : MonoBehaviour
 {
-
+    public LineRenderer line;
     public Slider itterationTimeSlider;
     
     public float iterationTime;
@@ -69,6 +70,8 @@ public bool paused = false;
 
         nextChosenTransform = points[randomNum];
 
+        DrawLine(currentLocation.position,nextChosenTransform.position);
+
         FindMiddle();
     }
 
@@ -79,7 +82,9 @@ public bool paused = false;
         GameObject instance = Instantiate(objectToInstantiate,newPos,Quaternion.identity);
         instantiatedObjects.Add(instance);
         //instance.transform.localScale = Vector3.one * 0.1f;
-        currentLocation.position = newPos;
+
+
+        currentLocation.DOMove(newPos,iterationTime);
 
         itteration++;
     }
@@ -133,5 +138,11 @@ public bool paused = false;
             Destroy(obj);
         }
         instantiatedObjects.Clear();
+    }
+
+    public void DrawLine(Vector3 start, Vector3 end)
+    {
+        line.SetPosition(0, start);
+        line.SetPosition(1, end);
     }
 }
