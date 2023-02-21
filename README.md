@@ -4,6 +4,8 @@ This repo contains an interactive version of the Chaos Game created in Unity.
 
 A deployed web version can be found here: https://www.monoganog.me/ChaosGame/
 
+![Screenshot](screenshot.png)
+
 # How to use
 
 Once open theyre a few parameters the user can select, these are: 
