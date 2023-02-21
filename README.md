@@ -1,8 +1,10 @@
-# InteractiveChaosTheoryGame
+# Interactive Chaos Theory Game
  
 This repo contains an interactive version of the Chaos Game created in Unity.
 
 A deployed web version can be found here: https://www.monoganog.me/ChaosGame/
+
+![Screenshot](Screenshot.png)
 
 # How to use
 
@@ -22,7 +24,7 @@ Ability to change the speed of itterations
 
 This project can be expanded in a number of ways, notably the use of particles and not tying itterations to the frame rate would increase number of itterations over time.
 
-This project could also be expanded to include other rules to allow more fractal types
+This project could also be expanded to include other rules to allow more fractal types.
 
 # Contributions
 
