@@ -40,19 +40,22 @@ public class ChaosManager : MonoBehaviour
 
     public bool canVisitPrevious = true;
 
+    public bool currentVertexCanBeOnePlaceAwayClockwise = true;
+
+    
+
     private int lastVisittedIndex;
 
     private int ammountOfParticles;
+
+    
+    
 
     // Start is called before the first frame update
     void Start()
     {
         //InvokeRepeating("FindNextPoint",0.5f,0.001f);
         InitialiseUI();
-
-
-
-
     }
 
     // Update is called once per frame
@@ -97,6 +100,19 @@ public class ChaosManager : MonoBehaviour
             }
         }
 
+        // If the current vertex cannot be one place away (anti-clockwise) from the previously chosen vertex
+        if(!currentVertexCanBeOnePlaceAwayClockwise)
+        {
+            // Calculate the next element in the array and wrap arround if the next sequential element is out of bounds
+            int nextElementIndex = (lastVisittedIndex + 1) % points.Length;
+
+            // While the next vertex to be chosen is == to what the next element is we must reroll
+            while(randomNum == nextElementIndex)
+            {
+                randomNum = Random.Range(0,points.Length);
+            }
+        }
+
         // Use the random number as the index of the points array that contains the corner points
         nextChosenTransform = points[randomNum];
 
@@ -112,15 +128,18 @@ public class ChaosManager : MonoBehaviour
     private void FindMiddle()
     {
         // Create and assign the value to the middle point to be the middle of the current position and the chosen corner point
-        Vector3 middlePoint = (currentLocation.position + nextChosenTransform.position) / 2;
-        // Instantiate an object at this middle point and add it to a list
-        //GameObject instance = Instantiate(objectToInstantiate,middlePoint,Quaternion.identity);
-        //instantiatedObjects.Add(instance);
-
-
+        Vector3 middlePoint = (currentLocation.position / 2) + (nextChosenTransform.position/2 );
+        
+        // Divide each vector by three before summing to get 1/3rd of the way across from a -> b. Times by 2 to get 2/3rds 
+        Vector3 twoThirdsPoint = (currentLocation.position / 3) + (nextChosenTransform.position / 3) *2;
+        
+        // Create parameters for a particle system
         var emitParams = new ParticleSystem.EmitParams();
+
+        // Assign the position of the particle system to be the middle point
         emitParams.position = middlePoint;
         
+        // Emit one particle 
         particles.Emit(emitParams, 1);
 
         ammountOfParticles++;
@@ -175,13 +194,12 @@ public class ChaosManager : MonoBehaviour
         // Pause
         paused = true;
 
-        // Destroy all objects
-        foreach (GameObject obj in instantiatedObjects)
-        {
-            Destroy(obj);
-        }
-        // Clear the list of objects
-        instantiatedObjects.Clear();
+        //particles.Stop(true);
+        particles.Clear();
+    }
+
+    public void HideLineRenderer(){
+        
     }
 
     public void DrawLine(Vector3 start, Vector3 end)
