@@ -7,34 +7,27 @@ using DG.Tweening;
 
 public class ChaosManager : MonoBehaviour
 {
+    public GameObject vertexPrefab;
     public ParticleSystem particles;
 
     public Transform currentLocation;
     [Header("Line Renderer")]
     public LineRenderer line;
-    [Header("Object to be placed")]
-    public GameObject objectToInstantiate;
+
   
-    [Header("Corner Points")]
-    public Transform[] points;
+    [Header("Corner Vertices")]
+    public List<Transform> vertices;
     
     [Header("UI Settings")]
     public Slider itterationTimeSlider;
     public TMPro.TextMeshProUGUI itterationText;
     public TMPro.TextMeshProUGUI fpsText;
-    public TMP_InputField p1x;
-    public TMP_InputField p1y;
-    public TMP_InputField p2x;
-    public TMP_InputField p2y;
-    public TMP_InputField p3x;
-    public TMP_InputField p3y;
-    public TMP_InputField startingPointx;
-    public TMP_InputField startingPointy;
 
+    private Button removeButton;
     // Private Variables
     private float iterationTime;
     private float currentTime;
-    public List<GameObject> instantiatedObjects;
+    
     private bool paused = false;
     private Transform nextChosenTransform;
 
@@ -42,20 +35,18 @@ public class ChaosManager : MonoBehaviour
 
     public bool currentVertexCanBeOnePlaceAwayClockwise = true;
 
-    
 
     private int lastVisittedIndex;
 
     private int ammountOfParticles;
 
     
-    
 
     // Start is called before the first frame update
     void Start()
     {
-        //InvokeRepeating("FindNextPoint",0.5f,0.001f);
-        InitialiseUI();
+        //InitialiseUI();
+        removeButton = GameObject.Find("Remove").GetComponent<Button>();
     }
 
     // Update is called once per frame
@@ -68,16 +59,9 @@ public class ChaosManager : MonoBehaviour
         if(currentTime>= iterationTime && !paused)
         {
             // Find the next point and reset the currentTime
-
-               FindNextPoint();
-         
-            
+            FindNextVertex();
             currentTime = 0;
         }
-
-
-        
-        
 
         // Ammount of itterations so far is equal to the amount of instantiated objects
         itterationText.text = ammountOfParticles.ToString();
@@ -86,35 +70,36 @@ public class ChaosManager : MonoBehaviour
         fpsText.text = Mathf.RoundToInt(1.0f / Time.deltaTime).ToString();
     }
 
-    // Method to find the next corner point to be selected
-    public void FindNextPoint(){
+    // Method to find the next corner vertex to be selected
+    public void FindNextVertex(){
 
         // Find a random number between 0 and the total amount of points
-        int randomNum = Random.Range(0,points.Length);
+        int randomNum = Random.Range(0,vertices.Count);
+
 
         if(!canVisitPrevious)
         {
             while(randomNum == lastVisittedIndex)
             {
-                randomNum = Random.Range(0,points.Length);
+                randomNum = Random.Range(0,vertices.Count);
             }
         }
 
-        // If the current vertex cannot be one place away (anti-clockwise) from the previously chosen vertex
+        // If the current vertex cannot be one place away (clockwise) from the previously chosen vertex
         if(!currentVertexCanBeOnePlaceAwayClockwise)
         {
             // Calculate the next element in the array and wrap arround if the next sequential element is out of bounds
-            int nextElementIndex = (lastVisittedIndex + 1) % points.Length;
+            int nextElementIndex = (lastVisittedIndex + 1) % vertices.Count;
 
             // While the next vertex to be chosen is == to what the next element is we must reroll
             while(randomNum == nextElementIndex)
             {
-                randomNum = Random.Range(0,points.Length);
+                randomNum = Random.Range(0,vertices.Count);
             }
         }
 
         // Use the random number as the index of the points array that contains the corner points
-        nextChosenTransform = points[randomNum];
+        nextChosenTransform = vertices[randomNum];
 
         // Draw a line from the current location to the next chosen corner transform
         DrawLine(currentLocation.position,nextChosenTransform.position);
@@ -122,6 +107,7 @@ public class ChaosManager : MonoBehaviour
         // Find the middle of the 2 chosen points
         FindMiddle();
 
+        // the last visited index is equal to the randomNum
         lastVisittedIndex = randomNum;
     }
 
@@ -130,6 +116,7 @@ public class ChaosManager : MonoBehaviour
         // Create and assign the value to the middle point to be the middle of the current position and the chosen corner point
         Vector3 middlePoint = (currentLocation.position / 2) + (nextChosenTransform.position/2 );
         
+        // TODO make an option to select the fraction along the line that should be considered the "middle point"
         // Divide each vector by three before summing to get 1/3rd of the way across from a -> b. Times by 2 to get 2/3rds 
         Vector3 twoThirdsPoint = (currentLocation.position / 3) + (nextChosenTransform.position / 3) *2;
         
@@ -139,9 +126,8 @@ public class ChaosManager : MonoBehaviour
         // Assign the position of the particle system to be the middle point
         emitParams.position = middlePoint;
         
-        // Emit one particle 
+        // Emit one particle and increment particle count
         particles.Emit(emitParams, 1);
-
         ammountOfParticles++;
 
         // Animate the current location to be at the last middle point
@@ -154,58 +140,90 @@ public class ChaosManager : MonoBehaviour
         iterationTime = itterationTimeSlider.value;
     }
 
-    
-    public void InitialiseUI()
-    {
-        // Initialise all the UI text to be where the current points are
-        p1x.text = points[0].transform.position.x.ToString();
-        p1y.text = points[0].transform.position.y.ToString();
-
-        p2x.text = points[1].transform.position.x.ToString();
-        p2y.text = points[1].transform.position.y.ToString();
-
-        p3x.text = points[2].transform.position.x.ToString();
-        p3y.text = points[2].transform.position.y.ToString();
-
-        startingPointx.text = currentLocation.position.x.ToString();
-        startingPointy.text = currentLocation.position.y.ToString();
-    }
-
-
-    public void UpdatePointPositions()
-    {
-        // Update point positions once user has finishing entering values into the UI
-        points[0].transform.position = new Vector3(float.Parse(p1x.text),float.Parse(p1y.text),0);
-        points[1].transform.position = new Vector3(float.Parse(p2x.text),float.Parse(p2y.text),0);
-        points[2].transform.position = new Vector3(float.Parse(p3x.text),float.Parse(p3y.text),0);
-        currentLocation.position = new Vector3(float.Parse(startingPointx.text),float.Parse(startingPointy.text),0);
-    }
-
 
     public void TogglePlayPause()
     {
+        // flip pause bool
         paused = !paused;
+
+        // If game is paused hide the line renderer otherwise if its playing then show it
+        if(paused)
+        {
+            HideLineRenderer();
+        }
+        else
+        {
+            ShowLineRenderer();
+        }
     }
 
+    // Stop the simulation
     public void Stop()
     {
+        // Reste ammount of particles
         ammountOfParticles = 0;
 
-        // Pause
+        // Pause sim
         paused = true;
 
-        //particles.Stop(true);
+        // Clear the spawned particles and hide the line renderer
         particles.Clear();
+        HideLineRenderer();
     }
 
-    public void HideLineRenderer(){
-        
+    public void HideLineRenderer()
+    {
+        line.gameObject.SetActive(false);
     }
 
+    public void ShowLineRenderer()
+    {
+        line.gameObject.SetActive(true);
+    }
+    
     public void DrawLine(Vector3 start, Vector3 end)
     {
         // Draw a line from the start to the end vectors
         line.SetPosition(0, start);
         line.SetPosition(1, end);
+    }
+
+    public void AddVertex()
+    {
+        // Spawn new vertex
+        GameObject instance = Instantiate(vertexPrefab);
+        // Apply a random Offset
+        Vector3 randomOffset = new Vector3(Random.Range(-5,6),Random.Range(-5,6),0);
+        instance.transform.position += randomOffset;
+
+        // Add new vertex to the vertices list
+        vertices.Add(instance.transform);
+
+        // Update the UI on the vertex to be representitive of the count
+        instance.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "p"+ vertices.Count.ToString();
+
+        // If there is 3 vertices make the remove button work
+        if(vertices.Count==3)
+        {
+            removeButton.interactable = true;
+        }
+    }
+
+    public void RemoveVertex()
+    {
+        // Check to see if theres atleast 2 Vertices
+        if(vertices.Count>2)
+        {
+            // Destroy the vertex
+            Destroy(vertices[vertices.Count-1].gameObject);
+            // Remove it from the list
+            vertices.RemoveAt(vertices.Count-1);
+
+            // If theres only two vertices then make the remove button not work
+            if(vertices.Count==2)
+            {
+                removeButton.interactable = false;
+            }
+        }
     }
 }
