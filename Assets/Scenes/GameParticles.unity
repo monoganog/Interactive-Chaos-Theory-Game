@@ -321,7 +321,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Option A
+  m_text: None
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1157,7 +1157,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 87323097}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 996008104}
+        m_TargetAssemblyTypeName: ChaosManager, Assembly-CSharp
+        m_MethodName: TogglePlayPause
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &87323097
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5536,6 +5548,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chaosManager: {fileID: 996008104}
   itterationTimeSlider: {fileID: 1924522858}
+  verticesInput: {fileID: 938271599}
+  presetsDropdown: {fileID: 0}
+  restrictionsDropdown: {fileID: 1530733417}
+  itterationText: {fileID: 0}
 --- !u!4 &505078515
 Transform:
   m_ObjectHideFlags: 0
@@ -7824,7 +7840,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 769957358}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 996008104}
+        m_TargetAssemblyTypeName: ChaosManager, Assembly-CSharp
+        m_MethodName: Stop
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &769957358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10370,9 +10398,9 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 996008104}
-        m_TargetAssemblyTypeName: ChaosManager, Assembly-CSharp
-        m_MethodName: CreateShape
+      - m_Target: {fileID: 505078514}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: VerticiesInputValueChanged
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11506,7 +11534,6 @@ MonoBehaviour:
   - {fileID: 1812579652}
   - {fileID: 948261421}
   - {fileID: 1767734046}
-  itterationTimeSlider: {fileID: 1924522858}
   itterationText: {fileID: 1127640474}
   fpsText: {fileID: 1107808445}
   verticesInput: {fileID: 938271599}
@@ -16199,18 +16226,20 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
-    - m_Text: Option A
+    - m_Text: None
       m_Image: {fileID: 0}
-    - m_Text: Option B
+    - m_Text: Can't be one away clockwise
       m_Image: {fileID: 0}
-    - m_Text: Option C
+    - m_Text: Can't visit previous vertex
+      m_Image: {fileID: 0}
+    - m_Text: Can't be two places away from previous vertex
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 996008104}
-        m_TargetAssemblyTypeName: ChaosManager, Assembly-CSharp
-        m_MethodName: SelectRestrictions
+      - m_Target: {fileID: 505078514}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: RestrictionsDropdownValueChanged
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -20254,7 +20283,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 505078514}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: UpdateItterationTime
+        m_MethodName: ItterationSliderValueChanged
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -19,7 +19,7 @@ public class ChaosManager : MonoBehaviour
 	public List<Transform> vertices;
 	
 	[Header("UI Settings")]
-	public Slider itterationTimeSlider;
+
 	public TMPro.TextMeshProUGUI itterationText;
 	public TMPro.TextMeshProUGUI fpsText;
 	
@@ -172,7 +172,11 @@ public class ChaosManager : MonoBehaviour
 		// Sets the interval between points placed
 		iterationTime = time;
 	}
-
+	
+	public void PauseSimlation()
+	{
+		
+	}
 
 	public void TogglePlayPause()
 	{
@@ -209,47 +213,23 @@ public class ChaosManager : MonoBehaviour
 		HideLineRenderer();
 	}
 	
-	public void CreateShape()
-	{
-		int sides = int.Parse(verticesInput.text.ToString());
-		RemoveAllVertices();
-		
-		// Add vertices
-		for(int i = 0; i < sides; i++)
-		{
-			AddVertex();
-		}
-		// Calculate angle between each vertex
-		float angle = 2 * Mathf.PI / sides; // 72°
-		
-		// Itterate over each vertex
-		for (int i = 0; i < sides; i++)
-		{	
-			// Assign position to each vertex
-			vertices[i].position  = new Vector3
-			(
-				Mathf.Cos(-angle * i + Mathf.PI/2),
-				Mathf.Sin(-angle * i + Mathf.PI/2),
-				0
-			) 	* scaleFactor;
-		}
-	}
-	// Method overloading for calling the CreateShape method internally with arguments rather than via UI
-	public void CreateShape(int sides)
+	
+	// Creates a shape with a given number of vertices
+	public void CreateShape(int numOfVertices)
 	{
 		
 		RemoveAllVertices();
 		
 		// Add vertices
-		for(int i = 0; i < sides; i++)
+		for(int i = 0; i < numOfVertices; i++)
 		{
 			AddVertex();
 		}
 		// Calculate angle between each vertex
-		float angle = 2 * Mathf.PI / sides; // 72°
+		float angle = 2 * Mathf.PI / numOfVertices; // 72°
 		
 		// Itterate over each vertex
-		for (int i = 0; i < sides; i++)
+		for (int i = 0; i < numOfVertices; i++)
 		{	
 			// Assign position to each vertex
 			vertices[i].position  = new Vector3
@@ -330,22 +310,11 @@ public class ChaosManager : MonoBehaviour
 		vertices.Clear();
 	}
 	
-	public void LoadSerpinskyTrianglePreset()
-	{
-		CreateShape(3);
-		
-		// Set other params
-		canBeOnePlaceAwayClockwise = true;
-		canVisitPreviousVertex = true;
-	}
+
 	
 	public void LoadRestrictedSquarePreset()
 	{
-		CreateShape(4);
-		
-		// Set other params
-		canBeOnePlaceAwayClockwise = true;
-		canVisitPreviousVertex = false;
+
 	}
 	
 	public void LoadRestrictedClockwiseSquarePreset()
@@ -363,8 +332,77 @@ public class ChaosManager : MonoBehaviour
 		CreateShape(5);
 	}
 	
-	public void SelectRestrictions()
+	private void RemoveAllRestrictions()
 	{
+		canBeOnePlaceAwayClockwise = true;
+		canVisitPreviousVertex = true;
+		canBeTwoPlacesAwayFromPrevious = true;
+	}
+	
+	// TODO may need to rename these bools to be shorter
+	public void SelectRestrictions(string restrictions)
+	{
+		switch (restrictions)
+		{
+			case "None":
+			{
+
+				RemoveAllRestrictions();
+				break;
+			}
+			case "Can't be one away clockwise":
+			{
+				RemoveAllRestrictions();
+				canBeOnePlaceAwayClockwise = false;
+	
+				break;
+			}
+			case "Can't visit previous vertex":
+			{
+				RemoveAllRestrictions();
+				canVisitPreviousVertex = false;
+				break;
+			}
+			case "Can't be two places away from previous vertex":
+			{
+				RemoveAllRestrictions();
+				canBeTwoPlacesAwayFromPrevious = false;
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+	}
+
+	public void LoadPreset(string presetName)
+	{
+		switch (presetName)
+		{
+			case "Serpinsky Triangle":
+			{
+				CreateShape(3);
 		
+				// Set other params
+				canBeOnePlaceAwayClockwise = true;
+				canVisitPreviousVertex = true;
+				
+				break;
+			}
+			case "RestrictedSquarePreset":
+			{
+				CreateShape(4);
+				
+				// Set other params
+				canBeOnePlaceAwayClockwise = true;
+				canVisitPreviousVertex = false;
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
 	}
 }
