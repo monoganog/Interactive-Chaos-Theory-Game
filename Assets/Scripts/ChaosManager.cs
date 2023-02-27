@@ -23,7 +23,11 @@ public class ChaosManager : MonoBehaviour
 	public TMPro.TextMeshProUGUI itterationText;
 	public TMPro.TextMeshProUGUI fpsText;
 	
-	public TMPro.TMP_InputField sidesInput;
+	public TMPro.TMP_InputField verticesInput;
+	
+	public TMPro.TMP_InputField moveAmountNumeratorInput;
+	
+	public TMPro.TMP_InputField moveAmountDenominatorInput;
 
 	private Button removeButton;
 	// Private Variables
@@ -163,10 +167,10 @@ public class ChaosManager : MonoBehaviour
 		currentLocation.DOMove(middlePoint,iterationTime);
 	}
 
-	public void UpdateItterationTime()
+	public void SetItterationTime(float time)
 	{
-		// Assign the itteration time to be the value of the UI slider
-		iterationTime = itterationTimeSlider.value;
+		// Sets the interval between points placed
+		iterationTime = time;
 	}
 
 
@@ -185,6 +189,11 @@ public class ChaosManager : MonoBehaviour
 			ShowLineRenderer();
 		}
 	}
+	
+	public void ToggleViewUI(bool val)
+	{
+		Debug.Log(val);
+	}
 
 	// Stop the simulation
 	public void Stop()
@@ -202,7 +211,7 @@ public class ChaosManager : MonoBehaviour
 	
 	public void CreateShape()
 	{
-		int sides = int.Parse(sidesInput.text.ToString());
+		int sides = int.Parse(verticesInput.text.ToString());
 		RemoveAllVertices();
 		
 		// Add vertices
@@ -352,5 +361,10 @@ public class ChaosManager : MonoBehaviour
 	public void LoadPentagonPreset()
 	{
 		CreateShape(5);
+	}
+	
+	public void SelectRestrictions()
+	{
+		
 	}
 }
