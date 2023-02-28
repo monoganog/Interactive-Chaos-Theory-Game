@@ -252,7 +252,7 @@ GameObject:
   - component: {fileID: 6869416086282784042}
   m_Layer: 0
   m_Name: VertexPrefab
-  m_TagString: Untagged
+  m_TagString: GameObjectsToBeHidden
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

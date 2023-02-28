@@ -16,37 +16,30 @@ public class ChaosManager : MonoBehaviour
 
   
 	[Header("Corner Vertices")]
-	public List<Transform> vertices;
+	public List<Transform> vertices = new List<Transform>();
 	
-	[Header("UI Settings")]
-
-	public TMPro.TextMeshProUGUI itterationText;
-	public TMPro.TextMeshProUGUI fpsText;
-	
-	public TMPro.TMP_InputField verticesInput;
-	
-	public TMPro.TMP_InputField moveAmountNumeratorInput;
-	
-	public TMPro.TMP_InputField moveAmountDenominatorInput;
-
-	private Button removeButton;
 	// Private Variables
 	private float iterationTime;
 	private float currentTime;
 	
-	private bool paused = false;
+	public bool paused = false;
 	private Transform nextChosenTransform;
 
-	public bool canVisitPreviousVertex = true;
+	private bool canVisitPreviousVertex = true;
 
-	public bool canBeOnePlaceAwayClockwise = true;
-	
-	public bool canBeTwoPlacesAwayFromPrevious = true;
+	private bool canBeOnePlaceAwayClockwise = true;
+
+	private bool canBeTwoPlacesAwayFromPrevious = true;
 
 
 	private int lastVisittedIndex;
 
 	private int ammountOfParticles;
+
+	private int moveAmmountNumerator = 1;
+	private int moveAmmountDenominator = 2;
+
+
 
 	// Scale factor
 	private int scaleFactor = 40;
@@ -54,12 +47,7 @@ public class ChaosManager : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
-		//InitialiseUI();
-		//removeButton = GameObject.Find("Remove").GetComponent<Button>();
-		
-		//LoadSerpinskyTrianglePreset();
-		
-		//CreateShape(9);
+		LoadPreset("Serpinsky Triangle");
 	}
 
 	// Update is called once per frame
@@ -81,6 +69,20 @@ public class ChaosManager : MonoBehaviour
 
 		// Calculation to display the frames per second without decimals
 		fpsText.text = Mathf.RoundToInt(1.0f / Time.deltaTime).ToString();
+	}
+
+
+	// TODO investigate why it needs to stop  before applying the value change otherwise its showing wrong positioning
+	public void SetMoveLengthNumerator(int val)
+    {
+		moveAmmountNumerator = val;
+		Stop();
+	}
+
+	public void SetMoveLengthDenominator(int val)
+	{
+		moveAmmountDenominator = val;
+		Stop();
 	}
 
 	// Method to find the next corner vertex to be selected
@@ -138,20 +140,18 @@ public class ChaosManager : MonoBehaviour
 		DrawLine(currentLocation.position,nextChosenTransform.position);
 
 		// Find the middle of the 2 chosen points
-		FindMiddle();
+		FindMidpoint();
 
 		// finally assign the value to the last visited index to be the value of the Next/Chosen index
 		lastVisittedIndex = indexOfNextVertex;
 	}
 
-	private void FindMiddle()
+	private void FindMidpoint()
 	{
+		// TODO investigate why this isnt working as intended with the ability to change the numerator and denominator
 		// Create and assign the value to the middle point to be the middle of the current position and the chosen corner point
-		Vector3 middlePoint = (currentLocation.position / 2) + (nextChosenTransform.position/2 );
+		Vector3 middlePoint = (currentLocation.position / moveAmmountDenominator) + (nextChosenTransform.position / moveAmmountDenominator) * moveAmmountNumerator;
 		
-		// TODO make an option to select the fraction along the line that should be considered the "middle point"
-		// Divide each vector by three before summing to get 1/3rd of the way across from a -> b. Times by 2 to get 2/3rds 
-		Vector3 twoThirdsPoint = (currentLocation.position / 3) + (nextChosenTransform.position / 3) *2;
 		
 		// Create parameters for a particle system
 		var emitParams = new ParticleSystem.EmitParams();
@@ -173,10 +173,6 @@ public class ChaosManager : MonoBehaviour
 		iterationTime = time;
 	}
 	
-	public void PauseSimlation()
-	{
-		
-	}
 
 	public void TogglePlayPause()
 	{
@@ -217,10 +213,10 @@ public class ChaosManager : MonoBehaviour
 	// Creates a shape with a given number of vertices
 	public void CreateShape(int numOfVertices)
 	{
-		
+		// Remove all previous Vertices
 		RemoveAllVertices();
 		
-		// Add vertices
+		// Add new vertices
 		for(int i = 0; i < numOfVertices; i++)
 		{
 			AddVertex();
@@ -237,11 +233,27 @@ public class ChaosManager : MonoBehaviour
 				Mathf.Cos(-angle * i + Mathf.PI/2),
 				Mathf.Sin(-angle * i + Mathf.PI/2),
 				0
-			) 	* scaleFactor;
+			)
+			* scaleFactor;
 		}
 	}
-	
-	
+
+	// Adds a new vertex
+	public void AddVertex()
+	{
+		// Spawn new vertex
+		GameObject instance = Instantiate(vertexPrefab);
+		// Apply a random Offset
+		Vector3 randomOffset = new Vector3(0, Random.Range(-5, 6), 0);
+		instance.transform.position += randomOffset;
+
+		// Add new vertex to the vertices list
+		vertices.Add(instance.transform);
+
+		// Update the UI on the vertex to be representitive of the count
+		instance.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "V" + vertices.Count.ToString();
+	}
+
 
 	public void HideLineRenderer()
 	{
@@ -260,78 +272,19 @@ public class ChaosManager : MonoBehaviour
 		line.SetPosition(1, end);
 	}
 
-	// Adds a new vertex, called Via UI Button
-	public void AddVertex()
-	{
-		// Spawn new vertex
-		GameObject instance = Instantiate(vertexPrefab);
-		// Apply a random Offset
-		Vector3 randomOffset = new Vector3(0,Random.Range(-5,6),0);
-		instance.transform.position += randomOffset;
-		
-		// Add new vertex to the vertices list
-		vertices.Add(instance.transform);
-		
-		// Update the UI on the vertex to be representitive of the count
-		instance.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "V"+ vertices.Count.ToString();
-
-		// If there is 3 vertices make the remove button interactable
-		if(vertices.Count==3)
-		{
-			//removeButton.interactable = true;
-		}
-	}
-
-	// Removes a vertex, called Via UI Button
-	public void RemoveVertex()
-	{
-		// Check to see if theres atleast 2 Vertices
-		if(vertices.Count>2)
-		{
-			// Destroy the vertex
-			Destroy(vertices[vertices.Count-1].gameObject);
-			// Remove it from the list
-			vertices.RemoveAt(vertices.Count-1);
-
-			// If theres only two vertices then make the remove button not interactable
-			if(vertices.Count==2)
-			{
-				//removeButton.interactable = false;
-			}
-		}
-	}
-	
 	public void RemoveAllVertices()
 	{
-		foreach(var vertex in vertices)
-		{
-			Destroy(vertex.gameObject);
+        if (vertices.Count > 0)
+        {
+			foreach (var vertex in vertices)
+			{
+				Destroy(vertex.gameObject);
+			}
+			vertices.Clear();
 		}
-		vertices.Clear();
-	}
-	
-
-	
-	public void LoadRestrictedSquarePreset()
-	{
 
 	}
-	
-	public void LoadRestrictedClockwiseSquarePreset()
-	{
-		
-		CreateShape(4);
-		
-		// Then alter these params
-		canBeOnePlaceAwayClockwise = false;
-		canVisitPreviousVertex = true;
-	}
-	
-	public void LoadPentagonPreset()
-	{
-		CreateShape(5);
-	}
-	
+
 	private void RemoveAllRestrictions()
 	{
 		canBeOnePlaceAwayClockwise = true;
@@ -376,6 +329,7 @@ public class ChaosManager : MonoBehaviour
 		}
 	}
 
+	// TODO add more presets
 	public void LoadPreset(string presetName)
 	{
 		switch (presetName)
@@ -383,20 +337,20 @@ public class ChaosManager : MonoBehaviour
 			case "Serpinsky Triangle":
 			{
 				CreateShape(3);
-		
+
 				// Set other params
-				canBeOnePlaceAwayClockwise = true;
-				canVisitPreviousVertex = true;
+				RemoveAllRestrictions();
 				
 				break;
 			}
-			case "RestrictedSquarePreset":
+			case "Restricted Square 1":
 			{
 				CreateShape(4);
-				
+
 				// Set other params
-				canBeOnePlaceAwayClockwise = true;
+				RemoveAllRestrictions();
 				canVisitPreviousVertex = false;
+
 				break;
 			}
 			default:
