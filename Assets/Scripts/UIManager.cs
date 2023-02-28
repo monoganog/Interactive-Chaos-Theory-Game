@@ -187,7 +187,7 @@ public class UIManager : MonoBehaviour
 		}
 	}
 
-	public void ToggleUIVisibility()
+	public void ToggleGameUIVisibility()
     {
 		showingUI = !showingUI;
 		
