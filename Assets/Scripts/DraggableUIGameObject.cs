@@ -1,13 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-// With thanks to the GOAT @CodeMonkey https://www.youtube.com/watch?v=Mb2oua3FjZg
+/// <summary>
+/// Simple script to allow moving of the UI menu panel
+///
+/// Ben Monaghan 2023
+/// With thanks to the GOAT @CodeMonkey https://www.youtube.com/watch?v=Mb2oua3FjZg
+/// </summary>
 
-public class DraggableUIGameObject : MonoBehaviour, IDragHandler, IEndDragHandler
+public class DraggableUIGameObject : MonoBehaviour, IDragHandler
 {
-
     public RectTransform dragRectTransform;
     public Canvas canvas;
 
@@ -16,9 +18,4 @@ public class DraggableUIGameObject : MonoBehaviour, IDragHandler, IEndDragHandle
         dragRectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-
-    }
 }

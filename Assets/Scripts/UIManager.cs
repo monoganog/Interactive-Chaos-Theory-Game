@@ -1,59 +1,75 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 
+/// <summary>
+/// This class is responsible for allowing the UI to interact with the Chaos Manager as well as handling any other UI
+/// logic such as hiding or showing the menu panel, animations etc. Public the methods here are called via Unity events set up through
+/// the editor.
+///
+///  Ben Monaghan 2023
+/// </summary>
+
 public class UIManager : MonoBehaviour
 {
+	[Header("Chaos Manager")]
 	public ChaosManager chaosManager;
+
+	[Header("Sliders")]
 	public Slider itterationTimeSlider;
-	
+
+	[Header("Input fields")]
 	public TMP_InputField verticesInput;
 	public TMP_InputField moveAmmountNumeratorInput;
 	public TMP_InputField moveAmmountDenominatorInput;
 
+	[Header("Dropdowns")]
 	public TMP_Dropdown presetsDropdown;
-	
-
 	public TMP_Dropdown restrictionsDropdown;
 	public TMP_Dropdown fractalColourDropdown;
 	public TMP_Dropdown backgroundColourDropdown;
 
-
+	[Header("Text")]
 	public TextMeshProUGUI itterationText;
 	public TextMeshProUGUI fpsText;
+	public TextMeshProUGUI versionText;
 
+	[Header("Materials")]
 	public Material fractalMaterial;
-	public bool showingUI = true;
 
+	[Header("Line Renderer")]
 	public LineRenderer line;
 
+	[Header("UI Panels")]
 	public GameObject UIPanelGameObject;
 	public GameObject UIPanelPlusGameObject;
-	private bool UIPanelVisible = true;
 
+	// Private Variables
+	private bool showingUI = true;
+	private bool UIPanelVisible = true;
 	private float UIPanelStartingHeight;
 	private float UIPanelStartingWidth;
-
-	public Vector3 RotateAmmount;
+	private Vector3 RotateAmmount = new Vector3(0,0,-90);
 
 	// Start is called before the first frame update
 	void Start()
 	{
 		ApplyStartingUIConditions();
-
-		UIPanelStartingHeight = UIPanelGameObject.GetComponent<RectTransform>().sizeDelta.y;
-		UIPanelStartingWidth = UIPanelGameObject.GetComponent<RectTransform>().sizeDelta.x;
 	}
 
+	// Applys the UI starting conditions
 	private void ApplyStartingUIConditions()
     {
 		// Load the first element in the drop down for both Background Colour and Fractal Colour
 		BackgroundColourDropdownValueChanged();
 		FractalColourDropdownValueChanged();
 		verticesInput.text = "3";
+
+		versionText.text = "v" + Application.version.ToString();
+
+		UIPanelStartingHeight = UIPanelGameObject.GetComponent<RectTransform>().sizeDelta.y;
+		UIPanelStartingWidth = UIPanelGameObject.GetComponent<RectTransform>().sizeDelta.x;
 	}
 
     private void Update()
@@ -65,56 +81,61 @@ public class UIManager : MonoBehaviour
 		fpsText.text = Mathf.RoundToInt(1.0f / Time.deltaTime).ToString();
 	}
 
+	// Opens web browser to my social links
 	public void OpenWebURL(string url)
     {
 		Application.OpenURL(url);
 	}
 
-	public void ToggleViewUIPanel()
+	// Toggle the visibility of the Menu panel 
+	public void ToggleViewMenuUIPanel()
     {
 		UIPanelVisible = !UIPanelVisible;
 
         if (UIPanelVisible)
         {
-			// Maximise UI
+			// Maximise UI with animation
 			UIPanelGameObject.GetComponent<RectTransform>().DOSizeDelta(new Vector2(UIPanelStartingWidth, UIPanelStartingHeight), 0.4f);
+			// Animate the close icon
 			UIPanelPlusGameObject.transform.DOLocalRotate(Vector3.zero, 0.4f);
 		}
         else
         {
-			// Minimise UI
+			// Minimise UI with animation
 			UIPanelGameObject.GetComponent<RectTransform>().DOSizeDelta(new Vector2(UIPanelStartingWidth, 35),0.4f);
+			// Animate the open icon
 			UIPanelPlusGameObject.transform.DOLocalRotate(RotateAmmount, 0.4f);
 		}
 
 	}
 
-
-
-
+	// Method Called via Itteration UI Slider which will tell the ChaosManager how much long between itterations
 	public void ItterationSliderValueChanged()
 	{
 		chaosManager.SetItterationTime(itterationTimeSlider.value);
 	}
-	
+
+	// Method Called via Vertices UI Input which will tell the ChaosManager to create a shape with the given number of vertices
 	public void VerticiesInputValueChanged()
 	{
 		chaosManager.CreateShape(int.Parse(verticesInput.text.ToString()));
 	}
-	
+
+	// Method Called via Presets UI dropdown which will tell the ChaosManager preset to apply
 	public void PresetsDropdownValueChanged()
 	{
 		string presetChoice = presetsDropdown.options[presetsDropdown.value].text;
 		chaosManager.LoadPreset(presetChoice);
 	}
-	
-	
+
+	// Method Called via Restrictions UI dropdown which will tell the ChaosManager what restrictions to apply
 	public void RestrictionsDropdownValueChanged()
 	{
 		string restrictionsChoice = restrictionsDropdown.options[restrictionsDropdown.value].text;
 		chaosManager.SelectRestrictions(restrictionsChoice);
 	}
 
+	// TODO not yet implemented
 	public void MoveAmmountNumeratorInputValueChanged()
 	{
 		//chaosManager.SetMoveLengthNumerator(int.Parse(moveAmmountNumeratorInput.text.ToString()));
@@ -125,6 +146,7 @@ public class UIManager : MonoBehaviour
 		//chaosManager.SetMoveLengthDenominator(int.Parse(moveAmmountDenominatorInput.text.ToString()));
 	}
 
+	// Method Called via fractal colour UI dropdown change the fractals material colour
 	public void FractalColourDropdownValueChanged()
 	{
 		string fractalColourChoice = fractalColourDropdown.options[fractalColourDropdown.value].text;
@@ -153,6 +175,7 @@ public class UIManager : MonoBehaviour
         }
 	}
 
+	// Method Called via background colour UI dropdown change the cameras backgroud colour
 	public void BackgroundColourDropdownValueChanged()
 	{
 		string backgroundColourChoice = backgroundColourDropdown.options[backgroundColourDropdown.value].text;
@@ -161,7 +184,7 @@ public class UIManager : MonoBehaviour
 		{
 			case "Dark Grey":
             {
-                Camera.main.backgroundColor = new Color32(0x1D, 0x1D, 0x1D, 0xFF);
+				Camera.main.backgroundColor = new Color(0.066f, 0.066f, 0.066f);
 				break;
 			}
 			case "Black":
@@ -187,6 +210,8 @@ public class UIManager : MonoBehaviour
 		}
 	}
 
+
+	// TODO need to set new Vertices to also after being spawned
 	public void ToggleGameUIVisibility()
     {
 		showingUI = !showingUI;
@@ -237,12 +262,12 @@ public class UIManager : MonoBehaviour
 		HideLineRenderer();
 	}
 
-	public void HideLineRenderer()
+	private void HideLineRenderer()
 	{
 		line.gameObject.SetActive(false);
 	}
 
-	public void ShowLineRenderer()
+	private void ShowLineRenderer()
 	{
 		line.gameObject.SetActive(true);
 	}

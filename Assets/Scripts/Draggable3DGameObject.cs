@@ -1,6 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
+/// <summary>
+/// Simple script to allow dragging of GameObjects that have colliders
+///
+/// Ben Monaghan 2023
+/// </summary>
 
 public class Draggable3DGameObject : MonoBehaviour
 {

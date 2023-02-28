@@ -1,52 +1,52 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
 using DG.Tweening;
+
+/// <summary>
+/// This class is responsible for creating fractals using the rules laid out in this wikipedia article https://en.wikipedia.org/wiki/Chaos_game
+/// It can also create shapes and manage the life cycle of vertices. It also can load presets as well as apply restrictions to
+/// the rules of the chaos game
+///
+/// Ben Monaghan 2023
+/// </summary>
 
 public class ChaosManager : MonoBehaviour
 {
+	[Header("Prefab of the Vertex")]
 	public GameObject vertexPrefab;
+	[Header("Particle System")]
 	public ParticleSystem particles;
-
+	[Header("Start Location GO")]
 	public Transform currentLocation;
 	[Header("Line Renderer")]
 	public LineRenderer line;
-
-  
-	[Header("Corner Vertices")]
-	public List<Transform> vertices = new List<Transform>();
 	
+	// Public Properties
+	public int ammountOfParticles { get; set; }
+	public bool paused { get; set; }
+
 	// Private Variables
+	private List<Transform> vertices;
 	private float iterationTime;
 	private float currentTime;
-	
-	public bool paused { get; set; }
 	private Transform nextChosenTransform;
-
-	private bool canVisitPreviousVertex = true;
-
-	private bool canBeOnePlaceAwayClockwise = true;
-
-	private bool canBeTwoPlacesAwayFromPrevious = true;
-
-
 	private int lastVisittedIndex;
+	private int scaleFactor = 40;
 
-	public int ammountOfParticles { get; set; }
-
+	// Restrictions
+	private bool canVisitPreviousVertex = true;
+	private bool canBeOnePlaceAwayClockwise = true;
+	private bool canBeTwoPlacesAwayFromPrevious = true;
+	
+	// TODO Not fully implemented yet
 	private int moveAmmountNumerator = 1;
 	private int moveAmmountDenominator = 2;
-
-
-
-	// Scale factor
-	private int scaleFactor = 40;
 
 	// Start is called before the first frame update
 	void Start()
 	{
+		vertices = new List<Transform>();
+
 		LoadPreset("Serpinsky Triangle");
 		paused = false;
 	}
@@ -64,59 +64,34 @@ public class ChaosManager : MonoBehaviour
 			FindNextVertex();
 			currentTime = 0;
 		}
-
 	}
 
 	// Method to find the next corner vertex to be selected
-	public void FindNextVertex(){
-
+	private void FindNextVertex()
+	{
 		// The index of the next vetex is a random number between 0 and the total amount of vertices
 		int indexOfNextVertex = Random.Range(0,vertices.Count);
 
 		// If not allowed to visit the previous vertex
 		if(!canVisitPreviousVertex)
-		{
-			while(indexOfNextVertex == lastVisittedIndex)
-			{
-				indexOfNextVertex = Random.Range(0,vertices.Count);
-			}
-		}
+        {
+            indexOfNextVertex = CantVisitPreviousIndex(indexOfNextVertex);
+        }
 
-		// If the current vertex cannot be one place away (clockwise) from the previously chosen vertex
-		if(!canBeOnePlaceAwayClockwise)
-		{
-			// Calculate the next element in the array and wrap arround if the next sequential element is out of bounds
-			int nextClockwiseElementIndex = (lastVisittedIndex + 1) % vertices.Count;
+        // If the current vertex cannot be one place away (clockwise) from the previously chosen vertex
+        if (!canBeOnePlaceAwayClockwise)
+        {
+            indexOfNextVertex = CantBeOnePlaceAwayClockwise(indexOfNextVertex);
+        }
 
-			// While the next vertex to be chosen is == next cloxkwise element, reroll
-			while(indexOfNextVertex == nextClockwiseElementIndex)
-			{
-				indexOfNextVertex = Random.Range(0,vertices.Count);
-			}
-		}
-		
-		// Next Vertex cannot be two places away from the previous, meaning the next vertex selected must be either the same, or one either side of the last chosen vertex
-		if(!canBeTwoPlacesAwayFromPrevious)
-		{
-			
-			int nextClockwiseElementIndex = (lastVisittedIndex + 1) % vertices.Count;
-			int nextAntiClockwiseElementIndex = (lastVisittedIndex - 1 + vertices.Count) % vertices.Count;
-			
-			Debug.Log("last visited: " + lastVisittedIndex + "  Next Clockwise: " + nextClockwiseElementIndex + "  Next anti clockwise: "+ nextAntiClockwiseElementIndex);
-			
-			//int twoElementsAway = (lastVisittedIndex + 2) % vertices.Count;
-			
-			// Basically we want the next index to either be one away from the last index or the last index. If its not then reroll
-			while(indexOfNextVertex != nextClockwiseElementIndex && indexOfNextVertex != nextAntiClockwiseElementIndex && indexOfNextVertex != lastVisittedIndex)
-			//while(indexOfNextVertex == twoElementsAway)
-			{
-				// Reroll
-				indexOfNextVertex = Random.Range(0,vertices.Count);
-			}
-		}
+        // Next Vertex cannot be two places away from the previous, meaning the next vertex selected must be either the same, or one either side of the last chosen vertex
+        if (!canBeTwoPlacesAwayFromPrevious)
+        {
+            indexOfNextVertex = CantBeTwoPlacesAwatFromPrevious(indexOfNextVertex);
+        }
 
-		// Use the random number as the index of the points array that contains the corner points
-		nextChosenTransform = vertices[indexOfNextVertex];
+        // Use the random number as the index of the points array that contains the corner points
+        nextChosenTransform = vertices[indexOfNextVertex];
 
 		// Draw a line from the current location to the next chosen corner transform
 		DrawLine(currentLocation.position,nextChosenTransform.position);
@@ -128,13 +103,56 @@ public class ChaosManager : MonoBehaviour
 		lastVisittedIndex = indexOfNextVertex;
 	}
 
-	private void FindMidpoint()
+	// Method that applies the restriction and returns a suitable index for next vertex to be chosen
+    private int CantBeTwoPlacesAwatFromPrevious(int indexOfNextVertex)
+    {
+        int nextClockwiseElementIndex = (lastVisittedIndex + 1) % vertices.Count;
+        int nextAntiClockwiseElementIndex = (lastVisittedIndex - 1 + vertices.Count) % vertices.Count;
+
+
+        // Basically we want the next index to either be one away from the last index or the last index. If its not then reroll
+        while (indexOfNextVertex != nextClockwiseElementIndex && indexOfNextVertex != nextAntiClockwiseElementIndex && indexOfNextVertex != lastVisittedIndex)
+        //while(indexOfNextVertex == twoElementsAway)
+        {
+            // Reroll
+            indexOfNextVertex = Random.Range(0, vertices.Count);
+        }
+
+        return indexOfNextVertex;
+    }
+
+	// Method that applies the restriction and returns a suitable index for next vertex to be chosen
+	private int CantBeOnePlaceAwayClockwise(int indexOfNextVertex)
+    {
+        // Calculate the next element in the array and wrap arround if the next sequential element is out of bounds
+        int nextClockwiseElementIndex = (lastVisittedIndex + 1) % vertices.Count;
+
+        // While the next vertex to be chosen is == next cloxkwise element, reroll
+        while (indexOfNextVertex == nextClockwiseElementIndex)
+        {
+            indexOfNextVertex = Random.Range(0, vertices.Count);
+        }
+
+        return indexOfNextVertex;
+    }
+
+	// Method that applies the restriction and returns a suitable index for next vertex to be chosen
+	private int CantVisitPreviousIndex(int indexOfNextVertex)
+    {
+        while (indexOfNextVertex == lastVisittedIndex)
+        {
+            indexOfNextVertex = Random.Range(0, vertices.Count);
+        }
+
+        return indexOfNextVertex;
+    }
+
+    private void FindMidpoint()
 	{
 		// TODO investigate why this isnt working as intended with the ability to change the numerator and denominator
 		// Create and assign the value to the middle point to be the middle of the current position and the chosen corner point
 		Vector3 middlePoint = (currentLocation.position / moveAmmountDenominator) + (nextChosenTransform.position / moveAmmountDenominator) * moveAmmountNumerator;
-		
-		
+
 		// Create parameters for a particle system
 		var emitParams = new ParticleSystem.EmitParams();
 
@@ -185,7 +203,7 @@ public class ChaosManager : MonoBehaviour
 	}
 
 	// Adds a new vertex
-	public void AddVertex()
+	private void AddVertex()
 	{
 		// Spawn new vertex
 		GameObject instance = Instantiate(vertexPrefab);
@@ -200,13 +218,13 @@ public class ChaosManager : MonoBehaviour
 		instance.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "V" + vertices.Count.ToString();
 	}
 
-	public void DrawLine(Vector3 start, Vector3 end)
+	private void DrawLine(Vector3 start, Vector3 end)
 	{
 		line.SetPosition(0, start);
 		line.SetPosition(1, end);
 	}
 
-	public void RemoveAllVertices()
+	private void RemoveAllVertices()
 	{
         if (vertices.Count > 0)
         {
@@ -225,7 +243,9 @@ public class ChaosManager : MonoBehaviour
 		canVisitPreviousVertex = true;
 		canBeTwoPlacesAwayFromPrevious = true;
 	}
-	
+
+
+	// Called from the UI manager and here it sets the restriction
 	// TODO may need to rename these bools to be shorter
 	public void SelectRestrictions(string restrictions)
 	{
@@ -263,6 +283,7 @@ public class ChaosManager : MonoBehaviour
 		}
 	}
 
+	// Called from the UI manager and here it loads the preset
 	// TODO add more presets
 	public void LoadPreset(string presetName)
 	{
@@ -294,8 +315,7 @@ public class ChaosManager : MonoBehaviour
 		}
 	}
 
-
-	// TODO investigate why it needs to stop  before applying the value change otherwise its showing wrong positioning
+	// TODO make this work properly to allow different line lengths
 	//public void SetMoveLengthNumerator(int val)
 	//   {
 	//	moveAmmountNumerator = val;
@@ -306,7 +326,4 @@ public class ChaosManager : MonoBehaviour
 	//{
 	//	moveAmmountDenominator = val;
 	//}
-
-
-
 }

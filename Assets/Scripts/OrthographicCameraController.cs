@@ -1,6 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
+/// <summary>
+/// Simple camera controller to allow zome and movement on x and y axis
+///
+/// Ben Monaghan 2023
+/// </summary>
 
 public class OrthographicCameraController : MonoBehaviour
 {
@@ -9,8 +13,8 @@ public class OrthographicCameraController : MonoBehaviour
 
 	void Update()
 	{
-		//Zoom in and out
-   // Mouse ScrollWheel to zoom
+		
+		// Mouse ScrollWheel to zoom
         float zoom = Input.GetAxis("Mouse ScrollWheel");
         if (zoom != 0f)
         {
