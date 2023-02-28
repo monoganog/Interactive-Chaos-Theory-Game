@@ -8,10 +8,23 @@ A deployed web version can be found here: https://www.monoganog.me/ChaosGame/
 
 # How to use
 
-Once open theyre a few parameters the user can select, these are: 
-Ability to change the starting point location
-Ability to change edge point locations
-Ability to change the speed of itterations
+##Once open there are a few parameters the user can select, these are: 
+
+- Create Regular Polygons
+- Load Presets
+- Select Algorithm Restrictions
+- Camera controls
+- Change the starting point location via dragging
+- Ability to move vertex positions via dragging
+- Change the speed of itterations
+- Change colours
+
+## Controls
+
+The camera can be moved by right clicking and dragging
+The camera can also be zoomed by scrolling
+Placed Vertices can be moved by clicking and dragging
+
 
 #How to Install and Run the Project
 
@@ -22,11 +35,21 @@ Ability to change the speed of itterations
 
 # Future Work
 
-This project can be expanded in a number of ways, notably the use of particles and not tying itterations to the frame rate would increase number of itterations over time.
+This project is in progress. Some future updates will include:
 
-This project could also be expanded to include other rules to allow more fractal types.
+- Quicker itteration speed
+- More presets
+- More Colours
+- Ability to change the fraction along the line a point is placed
+- More restrictions
+- And much more!
 
 # Contributions
 
 Pull requests are welcome!
+
+# Known Bugs
+
+- If UI is hidden and new vertex placed it will still show the UI of the new vertex
+- UI is not updated after presets being selected
 
