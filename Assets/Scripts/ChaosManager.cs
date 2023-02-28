@@ -22,7 +22,7 @@ public class ChaosManager : MonoBehaviour
 	private float iterationTime;
 	private float currentTime;
 	
-	public bool paused = false;
+	public bool paused { get; set; }
 	private Transform nextChosenTransform;
 
 	private bool canVisitPreviousVertex = true;
@@ -34,7 +34,7 @@ public class ChaosManager : MonoBehaviour
 
 	private int lastVisittedIndex;
 
-	private int ammountOfParticles;
+	public int ammountOfParticles { get; set; }
 
 	private int moveAmmountNumerator = 1;
 	private int moveAmmountDenominator = 2;
@@ -48,6 +48,7 @@ public class ChaosManager : MonoBehaviour
 	void Start()
 	{
 		LoadPreset("Serpinsky Triangle");
+		paused = false;
 	}
 
 	// Update is called once per frame
@@ -64,25 +65,6 @@ public class ChaosManager : MonoBehaviour
 			currentTime = 0;
 		}
 
-		// Ammount of itterations so far is equal to the amount of instantiated objects
-		itterationText.text = ammountOfParticles.ToString();
-
-		// Calculation to display the frames per second without decimals
-		fpsText.text = Mathf.RoundToInt(1.0f / Time.deltaTime).ToString();
-	}
-
-
-	// TODO investigate why it needs to stop  before applying the value change otherwise its showing wrong positioning
-	public void SetMoveLengthNumerator(int val)
-    {
-		moveAmmountNumerator = val;
-		Stop();
-	}
-
-	public void SetMoveLengthDenominator(int val)
-	{
-		moveAmmountDenominator = val;
-		Stop();
 	}
 
 	// Method to find the next corner vertex to be selected
@@ -173,42 +155,6 @@ public class ChaosManager : MonoBehaviour
 		iterationTime = time;
 	}
 	
-
-	public void TogglePlayPause()
-	{
-		// flip pause bool
-		paused = !paused;
-
-		// If game is paused hide the line renderer otherwise if its playing then show it
-		if(paused)
-		{
-			HideLineRenderer();
-		}
-		else
-		{
-			ShowLineRenderer();
-		}
-	}
-	
-	public void ToggleViewUI(bool val)
-	{
-		Debug.Log(val);
-	}
-
-	// Stop the simulation
-	public void Stop()
-	{
-		// Reste ammount of particles
-		ammountOfParticles = 0;
-
-		// Pause sim
-		paused = true;
-
-		// Clear the spawned particles and hide the line renderer
-		particles.Clear();
-		HideLineRenderer();
-	}
-	
 	
 	// Creates a shape with a given number of vertices
 	public void CreateShape(int numOfVertices)
@@ -254,20 +200,8 @@ public class ChaosManager : MonoBehaviour
 		instance.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "V" + vertices.Count.ToString();
 	}
 
-
-	public void HideLineRenderer()
-	{
-		line.gameObject.SetActive(false);
-	}
-
-	public void ShowLineRenderer()
-	{
-		line.gameObject.SetActive(true);
-	}
-	
 	public void DrawLine(Vector3 start, Vector3 end)
 	{
-		// Draw a line from the start to the end vectors
 		line.SetPosition(0, start);
 		line.SetPosition(1, end);
 	}
@@ -359,4 +293,20 @@ public class ChaosManager : MonoBehaviour
 			}
 		}
 	}
+
+
+	// TODO investigate why it needs to stop  before applying the value change otherwise its showing wrong positioning
+	//public void SetMoveLengthNumerator(int val)
+	//   {
+	//	moveAmmountNumerator = val;
+
+	//}
+
+	//public void SetMoveLengthDenominator(int val)
+	//{
+	//	moveAmmountDenominator = val;
+	//}
+
+
+
 }
