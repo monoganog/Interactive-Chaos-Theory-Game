@@ -8,7 +8,7 @@ A deployed web version can be found here: https://www.monoganog.me/ChaosGame/
 
 # How to use
 
-##Once open there are a few parameters the user can select, these are: 
+## Once open there are a few parameters the user can select, these are: 
 
 - Create Regular Polygons
 - Load Presets
@@ -26,7 +26,7 @@ The camera can also be zoomed by scrolling
 Placed Vertices can be moved by clicking and dragging
 
 
-#How to Install and Run the Project
+# How to Install and Run the Project
 
 1. Download the whole repo
 2. Open Unity Hub and select "add project from disk"
